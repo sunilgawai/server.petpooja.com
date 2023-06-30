@@ -1,0 +1,429 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Needs to modify schemas then prisma generate for the schema work.
+
+model Salesman {
+  id          Int     @id @default(autoincrement())
+  salesman_id String  @default(uuid())
+  username    String  @unique()
+  password    String
+  orders      order[]
+}
+
+// Products related.
+model CartTable {
+  id              Int    @id @default(autoincrement())
+  cart_table_id   String @default(uuid())
+  cart_table_name String @unique()
+  Cart            Cart?
+}
+
+model Cart {
+  id             Int        @id @default(autoincrement())
+  customer_id    Int
+  payment_method String
+  payment_status Boolean // True if payment is done/successful. Order will be placed.
+  CartTable      CartTable  @relation(fields: [cart_table_id], references: [id])
+  cart_table_id  Int        @unique()
+  Cart_items     CartItem[]
+}
+
+model CartItem {
+  id      Int  @id @default(autoincrement())
+  cartId  Cart @relation(fields: [cart_id], references: [id])
+  cart_id Int
+
+  tbl_itemmaster tbl_itemmaster @relation(fields: [itemmaster_id], references: [id])
+  itemmaster_id  Int
+
+  quantity Int
+}
+
+model tbl_itemmaster {
+  Shop_Code                           String             @db.VarChar(255)
+  id                                  Int                @id @default(autoincrement())
+  Item_Id                             Int
+  Item_Code                           String?            @db.VarChar(255)
+  Item_CategoryId                     tbl_categorymaster @relation(fields: [tbl_categorymaster_id], references: [id])
+  tbl_categorymaster_id               Int
+  Item_Name                           String?            @db.VarChar(255)
+  Item_Description                    String?            @db.VarChar(255)
+  Item_UOM                            String?            @db.VarChar(255)
+  ItemRate_ID                         tbl_srate          @relation(fields: [tbl_srate_id], references: [Rate_ID])
+  tbl_srate_id                        Int
+  Item_Location                       String?            @db.VarChar(255)
+  Item_Manufacturer                   String?            @db.VarChar(255)
+  Item_OrderPlaceTime                 DateTime?          @db.DateTime(0)
+  Item_DeliverySchedule               String?            @db.VarChar(255)
+  Item_Egg                            String?            @db.VarChar(255)
+  Item_Veg                            String?            @db.VarChar(255)
+  Item_Expiry                         Int?
+  Item_MaxOrderLevel                  Int?
+  Item_MinOrderLevel                  Int?
+  Item_ReorderLevel                   Int?
+  Item_MOQ                            Int?
+  Increment_Factor_For_additional_Qty Float?             @db.Float
+  Item_FlavourId                      Int?
+  Item_Discontinued                   Boolean?
+  Item_Favourite                      String?            @db.VarChar(255)
+  Item_FixWeight                      Float?             @db.Float
+  Item_DeliverySchedule2              String?            @db.VarChar(255)
+  Item_DeliverySchedule9              String?            @db.VarChar(255)
+  Item_DeliveryDays                   String?            @db.VarChar(255)
+  Item_Falvours2                      String?            @db.Text
+  Item_Flavours9                      String?            @db.Text
+  Item_MinQty                         Int?
+  Item_Image                          String?            @db.Text
+  Item_IsMinQtyMandatory              Boolean?
+  Item_IsShapeRequired                Boolean?
+  Item_Shapes                         String?            @db.VarChar(255)
+  Item_ShortName                      String?            @db.VarChar(255)
+  Item_Type                           String?            @db.VarChar(255)
+  Item_IsSpecial                      String?            @db.VarChar(255)
+  Item_UnitID                         Int?
+  Item_ChapterID                      Int?
+  Item_TaxID                          Int?
+  Item_FreightRatePercentage          Float?             @db.Float
+  Item_MaxWeight                      Float?             @db.Float
+  Item_IsRemarkRequired               Boolean?
+  Item_PackagingTypeID                Int?
+  Item_Large                          Boolean?
+  Item_IsExcisable                    Boolean?
+  Item_LeadTime                       Int?
+  IsAvailableForUrgentOrder           Boolean?
+  CalculateExciseOnMRP                Boolean?
+  Rack_ID                             Int?
+  ItemsPerTray                        Int?
+  NoOfDaysToManufacture               Int?
+  Station_ID                          Int?
+  Item_OrderTypes                     String?            @db.VarChar(255)
+  DiscountPercentage                  Float?             @db.Float
+  MarginPercentage                    Float?             @db.Float
+  Item_EANCode                        String?            @db.VarChar(255)
+  AllowRateEditing                    Boolean?
+  AllowNegativeStock                  Boolean?
+  Item_HSNCode                        String?            @db.VarChar(255)
+  NoOfPieces                          Int?
+  ProductType                         String?            @db.VarChar(255)
+  IsAssemblyItem                      Boolean?
+  UrgentOrderShapes                   String?            @db.VarChar(255)
+  UrgentOrderFlavours                 String?            @db.VarChar(255)
+  IsItemReturnable                    Boolean?
+  createdAt                           DateTime           @db.DateTime(0)
+  updatedAt                           DateTime           @db.DateTime(0)
+  CartItem                            CartItem[]
+  orders_products                     orders_products[]
+}
+
+model tbl_srate {
+  Shop_Code          String           @db.VarChar(255)
+  id                 Int              @id @default(autoincrement())
+  Rate_ID            Int              @unique()
+  Item_Code          String?          @db.VarChar(255)
+  Item_Rate          Float?           @db.Float
+  Rate_IsEffective   Boolean?
+  Rate_EffectiveFrom DateTime?        @db.DateTime(0)
+  Rate_EffectiveTo   DateTime?        @db.DateTime(0)
+  Item_BillingRate   Float?           @db.Float
+  Shape_ID           Int?
+  createdAt          DateTime         @db.DateTime(0)
+  updatedAt          DateTime         @db.DateTime(0)
+  tbl_itemmaster     tbl_itemmaster[]
+}
+
+model order {
+  id                  Int               @id @default(autoincrement())
+  order_id            String            @default(uuid())
+  Shop_Code           String            @db.VarChar(255)
+  customer_first_name String            @db.VarChar(255)
+  customer_last_name  String            @db.VarChar(255)
+  customer_email      String            @db.VarChar(255)
+  customer_mobile     String            @db.VarChar(255)
+  date_purchased      DateTime?         @db.DateTime(0)
+  order_price         String?           @db.VarChar(255)
+  payment_method      String            @db.VarChar(255)
+  payment_status      String            @default("1") @db.VarChar(255)
+  order_status        String            @default("1") @db.VarChar(255)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  order_items         orders_products[]
+  salesmam            Salesman?         @relation(fields: [salesman_id], references: [id])
+  salesman_id         Int?
+}
+
+model orders_products {
+  Shop_Code           String         @db.VarChar(255)
+  id                  Int            @id @default(autoincrement())
+  order               order?         @relation(fields: [order_id], references: [id])
+  order_id            Int?
+  itemId              tbl_itemmaster @relation(fields: [item_id], references: [id])
+  item_id             Int
+  item_quantity       Int
+  // Remaining will be default as this table contains Item/Product ID and Item/Product Quantity.
+  products_name       String?        @db.VarChar(255)
+  products_image      String?        @db.VarChar(255)
+  products_unit_price String?        @db.VarChar(255)
+  products_totalPrice String?        @db.VarChar(255)
+  createdAt           DateTime       @default(now()) @db.Timestamp(0)
+  updatedAt           DateTime       @default(now()) @db.Timestamp(0)
+}
+
+model product {
+  Shop_Code           String   @db.VarChar(255)
+  id                  Int      @id @default(autoincrement())
+  product_name        String?  @db.VarChar(255)
+  product_slug        String?  @db.VarChar(255)
+  product_description String?  @db.Text
+  product_image       String?  @db.VarChar(255)
+  product_mrp         String?  @db.VarChar(255)
+  product_max_stock   String?  @db.VarChar(255)
+  product_status      Boolean?
+  category_id         String?  @db.VarChar(255)
+  createdAt           DateTime @db.DateTime(0)
+  updatedAt           DateTime @db.DateTime(0)
+}
+
+model product_images {
+  Shop_Code     String   @db.VarChar(255)
+  id            Int      @id @default(autoincrement())
+  product_id    String?  @db.VarChar(255)
+  product_image String?  @db.VarChar(255)
+  createdAt     DateTime @db.DateTime(0)
+  updatedAt     DateTime @db.DateTime(0)
+}
+
+model tbl_categorymaster {
+  Shop_Code             String           @db.VarChar(255)
+  id                    Int              @id @default(autoincrement())
+  Category_Id           Int
+  Category_Name         String           @db.VarChar(255)
+  Category_Discontinued Boolean
+  Category_Code         String?          @db.VarChar(255)
+  IsSpecial             String?          @db.VarChar(255)
+  Chapter_ID            Int?
+  CategoryGroup_ID      Int?
+  Sort_Index            Int?
+  Category_HSNCode      String?          @db.VarChar(255)
+  Series                String?          @db.VarChar(255)
+  BusinessType_ID       String?          @db.VarChar(255)
+  createdAt             DateTime         @db.DateTime(0)
+  updatedAt             DateTime         @db.DateTime(0)
+  tbl_itemmaster        tbl_itemmaster[]
+}
+
+model tbl_categorygroupmaster {
+  Shop_Code          String   @db.VarChar(255)
+  ID                 Int      @id  // tbl_categorymaster will linked to this table.
+  Category_GroupCode String?  @db.VarChar(255)
+  Category_GroupName String?  @db.VarChar(255)
+  Sort_Index         Int
+  createdAt          DateTime @db.DateTime(0)
+  updatedAt          DateTime @db.DateTime(0)
+}
+
+model tbl_customerdetails {
+  Shop_Code          String    @db.VarChar(255)
+  id                 Int       @id @default(autoincrement())
+  Cust_Id            Int
+  Cust_Name          String?   @db.VarChar(255)
+  Cust_Addr          String?   @db.VarChar(255)
+  Cust_ContactlNo    String?   @db.VarChar(255)
+  Cust_CellNo        String?   @db.VarChar(255)
+  Landmark           String?   @db.VarChar(255)
+  Cust_EmailID       String?   @db.VarChar(255)
+  Pincode            String?   @db.VarChar(255)
+  BirthDate          DateTime? @db.DateTime(0)
+  Gender             String?   @db.VarChar(255)
+  AnniversaryDate    DateTime? @db.DateTime(0)
+  Profession         String?   @db.VarChar(255)
+  CreatedDate        DateTime? @db.DateTime(0)
+  CreatedByUserID    Int?
+  GSTIN              String?   @db.VarChar(255)
+  Cust_Code          String?   @db.VarChar(255)
+  ContactPerson      String?   @db.VarChar(255)
+  Country_ID         Int?
+  State_ID           Int?
+  City_ID            Int?
+  DiscountPercentage Float?    @db.Float
+  Reference          String?   @db.VarChar(255)
+  synced             Boolean?
+  createdAt          DateTime  @db.DateTime(0)
+  updatedAt          DateTime  @db.DateTime(0)
+}
+
+model tbl_paymentmaster {
+  Shop_Code       String   @db.VarChar(255)
+  id              Int      @id @default(autoincrement())
+  PaymentModeCode String?  @db.VarChar(255)
+  PaymentModeName String?  @db.VarChar(255)
+  Description     String?  @db.VarChar(255)
+  IsDeleted       Boolean?
+  createdAt       DateTime @db.DateTime(0)
+  updatedAt       DateTime @db.DateTime(0)
+}
+
+model tbl_sale {
+  id                         Int       @id @default(autoincrement())
+  Shop_Code                  String?   @db.VarChar(255)
+  Sale_Id                    Int?
+  Sale_Type                  String?   @db.VarChar(255)
+  Sale_Number                String?   @db.VarChar(255)
+  Sale_DateTime              DateTime? @db.DateTime(0)
+  Sale_NoOfItems             Int?
+  Sale_IsDeleted             Boolean?
+  AdvSale_DateTime           DateTime? @db.DateTime(0)
+  Sale_By_Id                 Int?
+  Sale_Deleted_By_Id         Int?
+  SaleDeletion_DateTime      DateTime? @db.DateTime(0)
+  Sale_CounterID             Int?
+  IsGSTApplicable            Boolean?
+  Cust_ID                    Int?
+  Sale_ModifiedDateTime      DateTime? @db.DateTime(0)
+  Sale_ModifiedBy_UserID     Int?
+  AmountReceivedFromCustomer Float?    @db.Float
+  AdvOrder_Number            String?   @db.VarChar(255)
+  TableNumber                String?   @db.VarChar(255)
+  HappyHourDiscountID        Int?
+  OrderType_ID               Int?
+  CreatedDateTime            DateTime? @db.DateTime(0)
+  PayTypeBillNo              String?   @db.VarChar(255)
+  synced                     Boolean?
+  createdAt                  DateTime  @db.DateTime(0)
+  updatedAt                  DateTime  @db.DateTime(0)
+  Cust_ContactlNo            String?   @db.VarChar(255)
+  Sale_Number_Temp           String?   @db.VarChar(255)
+}
+
+model tbl_saleitem {
+  Shop_Code                   String   @db.VarChar(255)
+  id                          Int      @id @default(autoincrement())
+  Sale_Id                     Int
+  Item_ID                     String   @db.VarChar(255)
+  SaleItem_Qty                Float    @db.Float
+  SaleItem_Amount             Float    @db.Float
+  SaleItem_DiscountPercent    Float?   @db.Float
+  SaleItem_DiscountAmount     Float?   @db.Float
+  SaleItem_Weight             Float?   @db.Float
+  SaleItem_FlavourID          Int?
+  SaleItem_MaxFixRate         Float?   @db.Float
+  SaleItem_MaxIncrRate        Float?   @db.Float
+  SaleItem_FixWeight          Float?   @db.Float
+  SaleItem_Shape              String?  @db.VarChar(255)
+  SaleItem_EggStatus          Int?
+  SaleItem_Remark             String?  @db.VarChar(255)
+  SaleItem_ShapeID            Int?
+  SaleItem_FinalAmount        Float?   @db.Float
+  HappyHourDiscountPercentage Float?   @db.Float
+  Tax_ID                      Int?
+  TaxPercentage               Float?   @db.Float
+  CGST_Percentage             Float?   @db.Float
+  SGST_Percentage             Float?   @db.Float
+  IGST_Percentage             Float?   @db.Float
+  ItemDiscountPercentage      Float?   @db.Float
+  Unit_ID                     Int?
+  synced                      Boolean?
+  createdAt                   DateTime @db.DateTime(0)
+  updatedAt                   DateTime @db.DateTime(0)
+  Sale_Number                 String?  @db.VarChar(255)
+  Sale_Number_Temp            String?  @db.VarChar(255)
+}
+
+model tbl_salenumbers {
+  Shop_Code        String   @db.VarChar(255)
+  ID               Int      @id
+  Sale_Number      String?  @db.VarChar(255)
+  InUse            Boolean?
+  synced           Boolean?
+  createdAt        DateTime @db.DateTime(0)
+  updatedAt        DateTime @db.DateTime(0)
+  Sale_Number_Temp String?  @db.VarChar(255)
+}
+
+model tbl_salepaymentdetails {
+  Shop_Code               String    @db.VarChar(255)
+  id                      Int       @id @default(autoincrement())
+  SalePayment_ID          Int?
+  Sale_ID                 Int?
+  SaleSpecial_PaymentMode String?   @db.VarChar(255)
+  SalePayment_Amount      Float?    @db.Float
+  SalePayment_Date        DateTime? @db.DateTime(0)
+  Created_Date            DateTime? @db.DateTime(0)
+  PaymentSaleType_ID      Int?
+  synced                  Boolean?
+  createdAt               DateTime  @db.DateTime(0)
+  updatedAt               DateTime  @db.DateTime(0)
+  Sale_Number_Temp        String?   @db.VarChar(255)
+}
+
+model tbl_shopitems {
+  id        Int      @id @default(autoincrement())
+  Shop_Code String   @db.VarChar(255)
+  Shop_ID   Int?
+  Item_ID   Int?
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+}
+
+model tbl_shopmaster {
+  id                   Int      @id @default(autoincrement())
+  Shop_ID              Int
+  Shop_Name            String?  @db.VarChar(255)
+  Shop_Address         String?  @db.Text
+  Shop_RegNumber       String?  @db.VarChar(255)
+  Shop_ContactNumber   String?  @db.VarChar(255)
+  Shop_ContactPerson   String?  @db.VarChar(255)
+  Shop_VatNumber       String?  @db.VarChar(255)
+  Shop_Message         String?  @db.VarChar(255)
+  StockFolderPath      String?  @db.VarChar(255)
+  Shop_Code            String?  @db.VarChar(255)
+  Route_ID             Int?
+  Shop_Email           String?  @db.VarChar(255)
+  Shop_PanNo           String?  @db.VarChar(255)
+  Shop_OfficeNo        String?  @db.VarChar(255)
+  GRMCharges           Float?   @db.Float
+  NoOfCounters         Int?
+  IsDiscontinue        Boolean?
+  Shop_Website         String?  @db.VarChar(255)
+  Shop_FaxNo           String?  @db.VarChar(255)
+  Shop_TinNo           String?  @db.VarChar(255)
+  Shop_GSTIN           String?  @db.VarChar(255)
+  Shop_AdharNumber     String?  @db.VarChar(255)
+  Shop_BankIDs         String?  @db.VarChar(255)
+  Shop_DefaultBankID   Int?
+  City_ID              Int?
+  State_ID             Int?
+  Country_ID           Int?
+  ShowEANCodeInInvoice Boolean?
+  ShopType_ID          Int?
+  Password             String?  @db.VarChar(255)
+  PasswordStatus       Boolean?
+  createdAt            DateTime @db.DateTime(0)
+  updatedAt            DateTime @db.DateTime(0)
+}
+
+model tbl_stockdetails {
+  Shop_Code                String    @db.VarChar(255)
+  id                       Int       @id @default(autoincrement())
+  Item_ID                  String?   @db.VarChar(255)
+  Item_Qty                 Float?    @db.Float
+  Item_Weight              Float?    @db.Float
+  Item_FlavCode            Int?
+  Item_LastUpdatedDateTime DateTime? @db.DateTime(0)
+  Item_LastUpdatedBy       String?   @db.VarChar(255)
+  Item_StorageStock        Float?    @db.Float
+  Item_PrvDayStock         Float?    @db.Float
+  Item_EggStatus           Int?
+  Shape_ID                 Int?
+  createdAt                DateTime  @db.DateTime(0)
+  updatedAt                DateTime  @db.DateTime(0)
+}
