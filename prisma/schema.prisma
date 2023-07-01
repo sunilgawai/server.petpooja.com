@@ -29,13 +29,16 @@ model CartTable {
 }
 
 model Cart {
-  id             Int        @id @default(autoincrement())
-  customer_id    Int
-  payment_method String
-  payment_status Boolean // True if payment is done/successful. Order will be placed.
-  CartTable      CartTable  @relation(fields: [cart_table_id], references: [id])
-  cart_table_id  Int        @unique()
-  Cart_items     CartItem[]
+  id                  Int        @id @default(autoincrement())
+  customer_first_name String
+  customer_last_name  String
+  customer_mobile     String
+  payment_status      String? // True if payment is done/successful. Order will be placed.
+  payment_method      String
+  total_price         Int?
+  CartTable           CartTable  @relation(fields: [cart_table_id], references: [id])
+  cart_table_id       Int        @unique()
+  Cart_items          CartItem[]
 }
 
 model CartItem {
@@ -147,7 +150,7 @@ model order {
   Shop_Code           String            @db.VarChar(255)
   customer_first_name String            @db.VarChar(255)
   customer_last_name  String            @db.VarChar(255)
-  customer_email      String            @db.VarChar(255)
+  customer_email      String?           @db.VarChar(255)
   customer_mobile     String            @db.VarChar(255)
   date_purchased      DateTime?         @db.DateTime(0)
   order_price         String?           @db.VarChar(255)
@@ -223,7 +226,7 @@ model tbl_categorymaster {
 
 model tbl_categorygroupmaster {
   Shop_Code          String   @db.VarChar(255)
-  ID                 Int      @id  // tbl_categorymaster will linked to this table.
+  ID                 Int      @id // tbl_categorymaster will linked to this table.
   Category_GroupCode String?  @db.VarChar(255)
   Category_GroupName String?  @db.VarChar(255)
   Sort_Index         Int

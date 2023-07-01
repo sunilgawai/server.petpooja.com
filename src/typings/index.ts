@@ -4,13 +4,28 @@ export interface IJwtPayload {
     username: string
 }
 
+export interface ITable {
+    id: number;
+    cart_table_id: string;
+    cart_table_name: string;
+    Cart: null | ICart
+}
 
 export interface ICart {
-    cart_table_name: string
-    customer_id: number
-    payment_method: string
-    payment_status: boolean
-    cart_items: ICartItem[]
+    cart_table_id: number
+    customer_first_name: string;
+    customer_last_name: string;
+    customer_mobile: string;
+    payment_status: string;
+    payment_method: string;
+    cart_items: ICartItem[];
+    total_price: number
+}
+
+export interface ICartItem {
+    name?: string;
+    item_id: number;
+    quantity: number;
 }
 
 export interface ICartItem {

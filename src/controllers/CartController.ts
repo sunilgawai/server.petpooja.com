@@ -16,7 +16,7 @@ class CartController {
                 return next(CustomErrorHandler.notFound("Cart Tables Not Found."));
             }
 
-            res.status(200).json({ data: cart_tables })
+            res.status(200).json(cart_tables)
         } catch (error) {
             return next(error);
         }
@@ -29,15 +29,17 @@ class CartController {
             return next(error);
         }
         console.log(req.body);
-        const { customer_id, payment_method, payment_status, cart_table_name, cart_items } = req.body as ICart;
+        const { customer_first_name, customer_last_name, customer_mobile, total_price, payment_method, payment_status, cart_table_id, cart_items } = req.body as ICart;
         // User will get all carts in format of Tables > Cart > CartItems.
-        // When Storing Cart. Create a new Cart with the new CartItems and link them to the Table.
+        // When Storing Cart. Creating a new Cart with the new CartItems and link them to the Table.
 
         try {
-            // Getting Cart Table where the cart will be stored.
-            const cart_table = await database.cartTable.findUnique({
+            let cart_table = await database.cartTable.findUnique({
                 where: {
-                    cart_table_name: cart_table_name
+                    id: cart_table_id
+                },
+                include: {
+                    Cart: true
                 }
             })
 
@@ -45,36 +47,101 @@ class CartController {
                 return next(CustomErrorHandler.notFound("Cart Table Not Found."));
             }
 
-            const cart = await database.cart.create({
-                data: {
-                    customer_id: customer_id,
-                    payment_method: payment_method,
-                    payment_status: payment_status,
-                    Cart_items: {
-                        create: cart_items.map(item => ({
-                            tbl_itemmaster: {
-                                connect: {
-                                    id: item.item_id
-                                }
-                            },
-                            quantity: item.quantity
-                        }))
+            if (cart_table?.Cart) {
+                // Update the CartTable.
+                await database.cartTable.update({
+                    where: {
+                        id: cart_table_id
                     },
-                    CartTable: {
-                        connect: {
-                            id: cart_table.id
+                    data: {
+                        Cart: {
+                            update: {
+                                customer_first_name,
+                                customer_last_name,
+                                customer_mobile,
+                                total_price,
+                                payment_method,
+                                Cart_items: {
+                                    create: cart_items.map(item => ({
+                                        itemmaster_id: item.item_id,
+                                        quantity: item.quantity
+                                    }))
+                                }
+                            }
+                        }
+                    },
+                    include: {
+                        Cart: true
+                    }
+                }).then(resuls => {
+                    res.status(200).json(resuls);
+                })
+            } else {
+                await database.cartTable.update({
+                    where: {
+                        id: cart_table_id
+                    },
+                    data: {
+                        Cart: {
+                            create: {
+                                customer_first_name,
+                                customer_last_name,
+                                customer_mobile,
+                                total_price,
+                                payment_method,
+                                Cart_items: {
+                                    create: cart_items.map(item => ({
+                                        itemmaster_id: item.item_id,
+                                        quantity: item.quantity
+                                    }))
+                                }
+                            }
                         }
                     }
-                },
-                include: {
-                    CartTable: true,
-                    Cart_items: true
-                }
-            })
+                }).then(results => {
+                    res.status(200).json(results);
+                }).catch(err => {
+                    return next(err);
+                })
+            }
+        }
 
-            // Sending cart, cart_items & cart_table.
-            res.json({ data: 'response' });
-        } catch (error) {
+
+        // Works fine but won't update cart.
+        // const table = await database.cartTable.update({
+        //     where: {
+        //         id: cart_table_id
+        //     },
+        //     data: {
+        //         Cart: {
+        //             create: {
+        //                 customer_first_name,
+        //                 customer_last_name,
+        //                 customer_mobile,
+        //                 total_price,
+        //                 payment_method,
+        //                 Cart_items: {
+        //                     create: cart_items.map(item => ({
+        //                         itemmaster_id: item.item_id,
+        //                         quantity: item.quantity
+        //                     }))
+        //                 }
+        //             }
+        //         }
+        //     },
+        //     include: {
+        //         Cart: true
+        //     }
+        // })
+        // const cart_table = await database.cartTable.findMany({
+        //     include: {
+        //         Cart: true
+        //     }
+        // });
+
+        // Sending cart, cart_items & cart_table.
+        // res.json({ table, cart_table });
+        catch (error) {
             return next(error);
         }
     }
