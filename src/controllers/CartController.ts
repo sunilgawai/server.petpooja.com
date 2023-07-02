@@ -3,6 +3,7 @@ import { CustomErrorHandler } from "../services";
 import { database } from "../services/database";
 import { CartValidator } from "../validators";
 import { ICart } from "../typings";
+import Joi from "joi";
 
 class CartController {
     static async get(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -142,6 +143,63 @@ class CartController {
         // Sending cart, cart_items & cart_table.
         // res.json({ table, cart_table });
         catch (error) {
+            return next(error);
+        }
+    }
+
+    static async empty(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const id = req.params.id;
+
+        if (!id) {
+            return next(CustomErrorHandler.wrongCredentials("Table id not specified."));
+        }
+
+        const table_id = parseInt(id);
+
+        // Deleting the cart items.
+        try {
+            let table = await database.cartTable.findUnique({
+                where: {
+                    id: table_id
+                }
+            })
+
+            if (!table) {
+                return next(CustomErrorHandler.notFound("Cart Table Not Found."));
+            }
+            
+            const cartItems = await database.cartItem.deleteMany({
+                where: {
+                    cartId: {
+                        cart_table_id: {
+                            equals: table_id
+                        }
+                    }
+                }
+            })
+        } catch (error) {
+            return next(error);
+        }
+
+        // Deleting cart from cart table.
+        try {
+            const cart = await database.cartTable.update({
+                where: {
+                    id: table_id
+                },
+                data: {
+                    Cart: {
+                        delete: true
+                    }
+                }
+            })
+
+            if (!cart) {
+                return next(CustomErrorHandler.notFound("Cart Not Found."));
+            }
+
+            res.status(200).json(cart);
+        } catch (error) {
             return next(error);
         }
     }

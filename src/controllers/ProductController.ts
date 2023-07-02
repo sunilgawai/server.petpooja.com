@@ -10,8 +10,17 @@ class ProductsController {
                 where: {
                     Item_Discontinued: {
                         not: true
+                    },
+                    ItemRate_ID: {
+                        Rate_IsEffective: {
+                            not: false
+                        }
                     }
                 },
+                include: {
+                    ItemRate_ID: true,
+                    Item_CategoryId: true
+                }
                 // Needs to apply filtering for Item price and if it is effective.
             })
 

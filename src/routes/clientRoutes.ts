@@ -48,6 +48,15 @@ clientRoutes.get('/cart', CartController.get);
 */
 clientRoutes.post('/cart', CartController.store);
 
+/**
+ * POST Carts.
+ * @auth true
+ * @route {DELETE} /cart
+ * @param {id:number}
+ * @returns {ITable[]} // Table includes cart 
+*/
+clientRoutes.delete('/cart/:id', CartController.empty);
+
 
 /**
  * POST Carts.
@@ -61,12 +70,21 @@ clientRoutes.post('/order', OrderController.store);
 /**
  * POST Carts.
  * @auth true
- * @route {POST} /order
+ * @route {GET} /order
+ * @param {null}
+ * @returns {Iorder} 
+*/
+clientRoutes.get('/order', OrderController.getAll);
+
+
+/**
+ * POST Carts.
+ * @auth true
+ * @route {GET} /order
  * @param {id: number}
  * @returns {Order} // Table includes cart 
 */
-clientRoutes.get('/order/:id', OrderController.get);
-
+clientRoutes.get('/order/:id', OrderController.getUniuqe);
 
 
 
