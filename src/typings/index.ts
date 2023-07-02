@@ -1,3 +1,11 @@
+namespace Express {
+    interface Request {
+        salesman: {
+            username: string;
+            salesman_id: string;
+        }
+    }
+}
 
 export interface IJwtPayload {
     salesman_id: string,
@@ -8,18 +16,28 @@ export interface ITable {
     id: number;
     cart_table_id: string;
     cart_table_name: string;
-    Cart: null | ICart
+    Cart: ICart;
 }
 
 export interface ICart {
-    cart_table_id: number
+    id?: number;
     customer_first_name: string;
     customer_last_name: string;
     customer_mobile: string;
     payment_status: string;
     payment_method: string;
+    total_price: number;
+    cart_table_id?: number;
     cart_items: ICartItem[];
-    total_price: number
+}
+
+export interface ICartItem {
+    id?: number;
+    cart_id?: number;
+    itemmaster_id: number;
+    quantity: number;
+    name?: string
+
 }
 
 export interface ICartItem {

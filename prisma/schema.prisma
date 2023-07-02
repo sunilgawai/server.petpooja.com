@@ -50,6 +50,7 @@ model CartItem {
   itemmaster_id  Int
 
   quantity Int
+  name     String?
 }
 
 model tbl_itemmaster {

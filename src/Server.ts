@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, NextFunction, Request,Response } from "express";
 import { errorHandler } from "./middlewares";
 import clientRoutes from "./routes/clientRoutes";
 import authRoutes from "./routes/authRoutes";
@@ -11,6 +11,9 @@ const app: Application = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+// app.use((req: Request, res: Response, next: NextFunction) => {
+//     req.salesman
+// })
 
 // Init Routes.
 app.use('/api/auth', authRoutes);

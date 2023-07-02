@@ -10,7 +10,11 @@ class CartController {
         try {
             let cart_tables = await database.cartTable.findMany({
                 include: {
-                    Cart: true
+                    Cart: {
+                        include: {
+                            Cart_items: true
+                        }
+                    }
                 }
             });
             if (!cart_tables) {
@@ -30,7 +34,8 @@ class CartController {
             return next(error);
         }
         console.log(req.body);
-        const { customer_first_name, customer_last_name, customer_mobile, total_price, payment_method, payment_status, cart_table_id, cart_items } = req.body as ICart;
+        const { customer_first_name, customer_last_name, customer_mobile, total_price,
+            payment_method, payment_status, cart_table_id, cart_items } = req.body as ICart;
         // User will get all carts in format of Tables > Cart > CartItems.
         // When Storing Cart. Creating a new Cart with the new CartItems and link them to the Table.
 
@@ -48,6 +53,8 @@ class CartController {
                 return next(CustomErrorHandler.notFound("Cart Table Not Found."));
             }
 
+            console.log('boody', req.body)
+            console.log('product_itmes.', cart_items)
             if (cart_table?.Cart) {
                 // Update the CartTable.
                 await database.cartTable.update({
@@ -64,15 +71,20 @@ class CartController {
                                 payment_method,
                                 Cart_items: {
                                     create: cart_items.map(item => ({
-                                        itemmaster_id: item.item_id,
-                                        quantity: item.quantity
+                                        itemmaster_id: item.itemmaster_id,
+                                        quantity: item.quantity,
+                                        name: item.name
                                     }))
                                 }
                             }
                         }
                     },
                     include: {
-                        Cart: true
+                        Cart: {
+                            include: {
+                                Cart_items: true
+                            }
+                        }
                     }
                 }).then(resuls => {
                     res.status(200).json(resuls);
@@ -92,57 +104,32 @@ class CartController {
                                 payment_method,
                                 Cart_items: {
                                     create: cart_items.map(item => ({
-                                        itemmaster_id: item.item_id,
-                                        quantity: item.quantity
+                                        itemmaster_id: item.itemmaster_id,
+                                        quantity: item.quantity,
+                                        name: item.name
                                     }))
                                 }
+                            }
+                        }
+                    },
+                    include: {
+                        Cart: {
+                            include: {
+                                Cart_items: true
                             }
                         }
                     }
                 }).then(results => {
                     res.status(200).json(results);
                 }).catch(err => {
+                    console.log(err)
                     return next(err);
                 })
             }
         }
 
-
-        // Works fine but won't update cart.
-        // const table = await database.cartTable.update({
-        //     where: {
-        //         id: cart_table_id
-        //     },
-        //     data: {
-        //         Cart: {
-        //             create: {
-        //                 customer_first_name,
-        //                 customer_last_name,
-        //                 customer_mobile,
-        //                 total_price,
-        //                 payment_method,
-        //                 Cart_items: {
-        //                     create: cart_items.map(item => ({
-        //                         itemmaster_id: item.item_id,
-        //                         quantity: item.quantity
-        //                     }))
-        //                 }
-        //             }
-        //         }
-        //     },
-        //     include: {
-        //         Cart: true
-        //     }
-        // })
-        // const cart_table = await database.cartTable.findMany({
-        //     include: {
-        //         Cart: true
-        //     }
-        // });
-
-        // Sending cart, cart_items & cart_table.
-        // res.json({ table, cart_table });
         catch (error) {
+            console.log(error)
             return next(error);
         }
     }
@@ -167,7 +154,7 @@ class CartController {
             if (!table) {
                 return next(CustomErrorHandler.notFound("Cart Table Not Found."));
             }
-            
+
             const cartItems = await database.cartItem.deleteMany({
                 where: {
                     cartId: {
@@ -177,6 +164,10 @@ class CartController {
                     }
                 }
             })
+
+            if (!cartItems) {
+                return next(CustomErrorHandler.notFound("Cart Items Not Found."));
+            }
         } catch (error) {
             return next(error);
         }

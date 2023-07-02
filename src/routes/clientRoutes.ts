@@ -7,6 +7,7 @@ import {
     OrderController
 } from "../controllers";
 import { Router } from "express";
+import { auth } from "../middlewares";
 
 const clientRoutes = Router();
 
