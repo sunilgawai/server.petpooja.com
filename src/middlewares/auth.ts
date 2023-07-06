@@ -17,19 +17,9 @@ const auth = (req: Request, res: Response, next: NextFunction) => {
             username: 'sss'
         }
         console.log(req.salesman)
-        let { salesman_id, username } = <IJwtPayload>JwtService.verify(token, process.env.JWT_TOKEN_SECRET);
-        // Need to attach above properties on Express.Request Interface for global accessibility.
-        // if (!req.salesman) {
-        //     req.salesman = undefined;
-        // }
-
-        req.salesman = {
-            salesman_id,
-            username
-        }
+        const { salesman_id, username } = <IJwtPayload>JwtService.verify(token);
 
         console.log(req.salesman)
-
 
         next();
     } catch (error) {

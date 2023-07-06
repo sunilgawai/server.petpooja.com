@@ -7,6 +7,12 @@ namespace Express {
     }
 }
 
+export interface IQueryParams {
+    table_id: number;
+    item_id: number;
+    query: "increase" | "decrease";
+}
+
 export interface IJwtPayload {
     salesman_id: string,
     username: string
@@ -21,14 +27,11 @@ export interface ITable {
 
 export interface ICart {
     id?: number;
-    customer_first_name: string;
-    customer_last_name: string;
-    customer_mobile: string;
+    cart_table_id?: number;
+    Cart_items: ICartItem[];
+    total_price: number;
     payment_status: string;
     payment_method: string;
-    total_price: number;
-    cart_table_id?: number;
-    cart_items: ICartItem[];
 }
 
 export interface ICartItem {
@@ -37,18 +40,7 @@ export interface ICartItem {
     itemmaster_id: number;
     quantity: number;
     name?: string
-
-}
-
-export interface ICartItem {
-    name?: string;
-    item_id: number;
-    quantity: number;
-}
-
-export interface ICartItem {
-    item_id: number
-    quantity: number
+    product_price?: number;
 }
 
 export interface IOrder {

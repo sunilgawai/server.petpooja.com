@@ -106,87 +106,11 @@ class AuthController {
     }
 
     public async logout(req: Request, res: Response, next: NextFunction) {
-        // Validate Request.
-        // const { error } = Validate.logoutRequest(req.body);
-        // if (error) {
-        //     return next(error);
-        // }
-
-        // try {
-        //     // Check if Token exists in database or not.
-        //     await RefreshToken.findOneAndDelete({ refresh_token: req.body.refresh_token });
-        // } catch (error) {
-        //     return next(new Error("Something went wrong in database!"));
-        // }
-
         res.status(200).json({ message: "You are logged out from www.foodies.com" });
     }
 
     public async refresh(req: Request, res: Response, next: NextFunction) {
-        // Validate Request.
-        // const { error } = Validate.refreshRequest(req.body);
-        // if (error) {
-        //     return next(error);
-        // }
-        // // Check if Token exists in database or not.
-        // let result, user, access_token, refresh_token;
-        // try {
-        //     result = await RefreshToken.findOne({ refresh_token: req.body.refresh_token });
-        //     if (!result?.refresh_token) {
-        //         return next(CustomErrorHandler.unAuthorized("Invalid Refresh Token."));
-        //     }
-        //     // verify token.
-        //     let user_id;
-        //     try {
-        //         // Get user data from refresh token.
-        //         interface IJwtPayload {
-        //             _id: string,
-        //             email: string,
-        //             role: string
-        //         }
-        //         const { _id } = await <IJwtPayload>JwtService.verify(result.refresh_token, REFRESH_TOKEN_SECRET!);
-        //         user_id = _id;
-        //     } catch (error) {
-        //         return next(error);
-        //     }
-
-        //     // Check if user is in our database.
-        //     user = await User.findOne({ _id: user_id });
-        //     if (!user) {
-        //         return next(CustomErrorHandler.unAuthorized("No User Found."))
-        //     }
-
-        //     // Get user data from refresh token.
-        //     // Create JWT & Access Tokens.
-        //     // Database Whitelisting.
-
-        //     try {
-        //         // Access Token;
-        //         access_token = JwtService.sign({
-        //             _id: user._id,
-        //             role: user.role,
-        //             email: user.email
-        //         });
-
-        //         // Refresh Token saving & whitelisting.
-        //         refresh_token = JwtService.sign({
-        //             _id: user._id,
-        //             role: user.role,
-        //             email: user.email
-        //         }, '1w', REFRESH_TOKEN_SECRET);
-
-        //         await RefreshToken.create({ refresh_token });
-        //     } catch (error) {
-        //         return next(error);
-        //     }
-
-        // } catch (error) {
-        //     return next(error);
-        // }
-
-        // Return Response.
-        // res.status(200).json({ user, access_token, refresh_token });
-
+        res.json({ message: "Hello World." });
     }
 }
 

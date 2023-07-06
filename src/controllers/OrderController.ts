@@ -6,6 +6,10 @@ import { IOrder } from "../typings";
 
 class OrderController {
     static async getUniuqe(req: Request, res: Response, next: NextFunction): Promise<void> {
+        if (!req.params.id) {
+            return next(CustomErrorHandler.notFound("Required parameter not found."));
+        }
+        
         try {
             let order = await database.order.findUnique({
                 where: {
@@ -62,7 +66,7 @@ class OrderController {
                     order_items: {
                         create: order_items.map(item => ({
                             Shop_Code: shop_code,
-                            item_id: item.item_id,
+                            item_id: item.itemmaster_id,
                             item_quantity: item.quantity
                         }))
                     }

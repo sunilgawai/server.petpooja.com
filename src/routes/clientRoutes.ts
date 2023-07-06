@@ -1,13 +1,11 @@
 // import CartController from "../controllers/CartController";
 import {
-    AuthController,
     CartController,
     CategoryController,
     ProductController,
     OrderController
 } from "../controllers";
 import { Router } from "express";
-import { auth } from "../middlewares";
 
 const clientRoutes = Router();
 
@@ -44,10 +42,24 @@ clientRoutes.get('/cart', CartController.get);
  * POST Carts.
  * @auth true
  * @route {POST} /cart
- * @param {ICart}
- * @returns {ITable[]} // Table includes cart 
+ * @param {ITable}
+ * @returns {ITable[]} // Tables includes carts
 */
-clientRoutes.post('/cart', CartController.store);
+clientRoutes.post('/cart', CartController.update);
+
+
+/**
+ * INCREASE/DECREASE QTY.
+ * @auth true
+ * @route {POST} /cart/items/:itemId?query=increase
+ * @param {{
+ *      id: number
+ *      query: "decrease/decrease"
+ * }}
+ * @returns {true/false}
+*/
+// clientRoutes.post('/cart/items/:id', CartController.handleQty);
+
 
 /**
  * POST Carts.
@@ -56,7 +68,8 @@ clientRoutes.post('/cart', CartController.store);
  * @param {id:number}
  * @returns {ITable[]} // Table includes cart 
 */
-clientRoutes.delete('/cart/:id', CartController.empty);
+// clientRoutes.delete('/cart/:id', CartController.empty);
+
 
 
 /**
