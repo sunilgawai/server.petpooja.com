@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from "express";
+import { ICart, IQueryParams, ITable } from "../typings";
 import { CustomErrorHandler } from "../services";
 import { database } from "../services/database";
 import { CartValidator } from "../validators";
-import { ICart, IQueryParams, ITable } from "../typings";
 
 class CartController {
     static async get(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -27,6 +27,7 @@ class CartController {
     }
 
     static async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+        console.log("request body", req.body.table.Cart);
         const { error } = CartValidator.post_cart(req.body);
         if (error) {
             return next(error);
@@ -39,7 +40,7 @@ class CartController {
         try {
             const _table = await database.cartTable.findUnique({
                 where: {
-                    id: id
+                    id: table.id
                 },
                 include: {
                     Cart: true
@@ -49,7 +50,7 @@ class CartController {
             if (!_table) {
                 return next(CustomErrorHandler.notFound("Cart Table Not Found."));
             }
-
+            console.log("Request Table", table)
             // Checking if cart exists or not.
             if (!_table.Cart) {
                 // Cart Does not exist.
@@ -59,7 +60,8 @@ class CartController {
                             create: Cart_items.map(item => ({
                                 itemmaster_id: item.itemmaster_id,
                                 quantity: item.quantity,
-                                name: item.name
+                                name: item.name,
+                                product_price: item.product_price
                             }))
                         },
                         total_price: total_price || 0,
@@ -79,112 +81,112 @@ class CartController {
 
                 res.status(200).json(newCart);
             }
-            const { Cart } = table as ITable;
+            // const { Cart } = table as ITable;
             // if cart exists.
-            if (table.Cart) {
-                // Updating the cart.
-                // const updatedCart = await database.cart.update({
-                //     where: {
-                //         cart_table_id: _table.Cart?.id
-                //     },
-                //     data: {
-                //         ...Cart,
-                //         Cart_items: {
-                //             upsert: Cart.Cart_items.map((item) => ({
-                //                 where: { id: item.id || undefined },
-                //                 create: {
-                //                     ...item,
-                //                     cart: { connect: { id: table.Cart.id } }
-                //                 },
-                //                 update: {
-                //                     ...item
-                //                 }
-                //             }))
-                //         },
-                //         payment_method: Cart.payment_method,
-                //         payment_status: Cart.payment_status
-                //     },
-                //     include: {
-                //         Cart_items: true,
-                //         CartTable: true
-                //     }
-                // })
+            // if (table.Cart) {
+            // Updating the cart.
+            // const updatedCart = await database.cart.update({
+            //     where: {
+            //         cart_table_id: _table.Cart?.id
+            //     },
+            //     data: {
+            //         ...Cart,
+            //         Cart_items: {
+            //             upsert: Cart.Cart_items.map((item) => ({
+            //                 where: { id: item.id || undefined },
+            //                 create: {
+            //                     ...item,
+            //                     cart: { connect: { id: table.Cart.id } }
+            //                 },
+            //                 update: {
+            //                     ...item
+            //                 }
+            //             }))
+            //         },
+            //         payment_method: Cart.payment_method,
+            //         payment_status: Cart.payment_status
+            //     },
+            //     include: {
+            //         Cart_items: true,
+            //         CartTable: true
+            //     }
+            // })
 
-                // const updatedCart = await database.cart.update({
-                //     where: {
-                //         cart_table_id: table.id
-                //     },
-                //     data: {
-                //         Cart_items: {
-                //             create: Cart.Cart_items.map(item => ({
-                //                 upsert: {
-                //                     where: {
-                //                         id: item.id
-                //                     },
-                //                     create: {
-                //                         itemmaster_id: item.itemmaster_id,
-                //                         quantity: item.quantity,
-                //                         name: item.name,
-                //                         product_price: item.product_price,
-                //                         CartTable: {
-                //                             connect: {
-                //                                 id: Cart.cart_table_id // Provide the actual cart table ID
-                //                             }
-                //                         }
-                //                     },
-                //                     update: {
-                //                         quantity: {
-                //                             increament: 1
-                //                         }
-                //                     }
-                //                 }
-                //             }))
-                //         },
-                //         total_price: 195,
-                //         payment_method: undefined,
-                //         payment_status: undefined
-                //     },
-                //     include: {
-                //         Cart_items: true,
-                //         CartTable: true
-                //     }
-                // });
+            // const updatedCart = await database.cart.update({
+            //     where: {
+            //         cart_table_id: table.id
+            //     },
+            //     data: {
+            //         Cart_items: {
+            //             create: Cart.Cart_items.map(item => ({
+            //                 upsert: {
+            //                     where: {
+            //                         id: item.id
+            //                     },
+            //                     create: {
+            //                         itemmaster_id: item.itemmaster_id,
+            //                         quantity: item.quantity,
+            //                         name: item.name,
+            //                         product_price: item.product_price,
+            //                         CartTable: {
+            //                             connect: {
+            //                                 id: Cart.cart_table_id // Provide the actual cart table ID
+            //                             }
+            //                         }
+            //                     },
+            //                     update: {
+            //                         quantity: {
+            //                             increament: 1
+            //                         }
+            //                     }
+            //                 }
+            //             }))
+            //         },
+            //         total_price: 195,
+            //         payment_method: undefined,
+            //         payment_status: undefined
+            //     },
+            //     include: {
+            //         Cart_items: true,
+            //         CartTable: true
+            //     }
+            // });
 
-                const updatedCart = await database.cart.update({
-                    where: {
-                        cart_table_id: table.id
-                    },
-                    data: {
-                        // Update the cart properties
-                        payment_status: Cart.payment_status,
-                        payment_method: Cart.payment_method,
-                        total_price: Cart.total_price,
-                        // Update the cart items
-                        Cart_items: {
-                            upsert: Cart.Cart_items.map((item) => ({
-                                where: { id: item.id || undefined },
-                                create: {
-                                    itemmaster_id: item.itemmaster_id,
-                                    quantity: item.quantity,
-                                    name: item.name,
-                                    product_price: item.product_price,
-                                },
-                                update: {
-                                    itemmaster_id: item.itemmaster_id,
-                                    quantity: item.quantity,
-                                    name: item.name,
-                                    product_price: item.product_price,
-                                },
-                            })),
-                        },
-                    },
-                    include: {
-                        Cart_items: true,
-                        CartTable: true,
-                    },
-                });
-                res.status(200).json(updatedCart)
-            }
+            // const updatedCart = await database.cart.update({
+            //     where: {
+            //         cart_table_id: table.id
+            //     },
+            //     data: {
+            //         // Update the cart properties
+            //         payment_status: Cart.payment_status,
+            //         payment_method: Cart.payment_method,
+            //         total_price: Cart.total_price,
+            //         // Update the cart items
+            //         Cart_items: {
+            //             upsert: Cart.Cart_items.map((item) => ({
+            //                 where: { id: item.id || undefined },
+            //                 create: {
+            //                     itemmaster_id: item.itemmaster_id,
+            //                     quantity: item.quantity,
+            //                     name: item.name,
+            //                     product_price: item.product_price,
+            //                 },
+            //                 update: {
+            //                     itemmaster_id: item.itemmaster_id,
+            //                     quantity: item.quantity,
+            //                     name: item.name,
+            //                     product_price: item.product_price,
+            //                 },
+            //             })),
+            //         },
+            //     },
+            //     include: {
+            //         Cart_items: true,
+            //         CartTable: true,
+            //     },
+            // });
+            // res.status(200).json(updatedCart)
+            // }
 
         } catch (error) {
             return next(error);
@@ -418,6 +420,53 @@ class CartController {
 
     //     res.status(200).json({ message: "Quantity has been increased." });
     // }
+
+    static async empty(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const id = parseInt(req.params.id);
+        if (!id) {
+            return next(CustomErrorHandler.wrongCredentials("Table id not specified."));
+        }
+
+        try {
+            const table = await database.cartTable.findUnique({
+                where: {
+                    id: id
+                },
+                include: {
+                    Cart: {
+                        include: {
+                            Cart_items: true
+                        }
+                    }
+                }
+            })
+            if (!table) {
+                return next(CustomErrorHandler.notFound("Table not found"));
+            }
+
+            if (!table.Cart) {
+                return next(CustomErrorHandler.notFound("Cart not found"));
+            }
+
+            // Deleting the associated CartItems
+            await database.cartItem.deleteMany({
+                where: {
+                    cart_id: table.Cart.id
+                },
+            }).catch(err => next(err));
+
+            // Deleting the Cart
+            await database.cart.delete({
+                where: {
+                    id: table.Cart.id,
+                },
+            }).catch(err => next(err));
+
+            res.status(200).json({ message: "Cart Deleted." });
+        } catch (error) {
+            return next(error);
+        }
+    }
 }
 
 export default CartController;

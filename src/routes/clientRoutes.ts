@@ -68,7 +68,7 @@ clientRoutes.post('/cart', CartController.update);
  * @param {id:number}
  * @returns {ITable[]} // Table includes cart 
 */
-// clientRoutes.delete('/cart/:id', CartController.empty);
+clientRoutes.delete('/cart/:id', CartController.empty);
 
 
 

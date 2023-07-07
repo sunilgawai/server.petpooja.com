@@ -40,7 +40,7 @@ export interface ICartItem {
     itemmaster_id: number;
     quantity: number;
     name?: string
-    product_price?: number;
+    product_price: number;
 }
 
 export interface IOrder {
