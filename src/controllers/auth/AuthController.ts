@@ -32,9 +32,8 @@ class AuthController {
                 return next(CustomErrorHandler.alreadyExists("Username already exists."));
             }
         } catch (error) {
-            return next(error);
+            return next(error); 
         }
-
 
         let hashedPassword = await bcrypt.hash(password, 10);
         let salesman;
@@ -51,9 +50,8 @@ class AuthController {
             }
 
             let jwt_token = JwtService.sign({ salesman_id: salesman.salesman_id, username: salesman.username })
-
             res.status(200).json({
-                data: { username: salesman.username, jwt_token },
+                // data: { username: salesman.username, jwt_token },
                 message: "Registration succesfull."
             })
         } catch (error) {
@@ -74,7 +72,7 @@ class AuthController {
             return next(error);
         }
 
-        // Check if User exists or not
+        // Check if User exists or not.
         // Compare the password.
         let salesman;
         try {
@@ -96,9 +94,11 @@ class AuthController {
         }
 
         // Create JWT & Access Tokens.
-        // Database Whitelisting.
         let jwt_token = JwtService.sign({ salesman_id: salesman.salesman_id, username: salesman.username })
-
+        res.cookie("jwt_token", jwt_token, {
+            expires: new Date(Date.now() + 3600000),
+            httpOnly: true
+        });
         res.status(200).json({
             data: { username: salesman.username, jwt_token },
             message: "Login successful."
