@@ -28,6 +28,9 @@ export interface ITable {
 export interface ICart {
     id?: number;
     cart_table_id?: number;
+    customer_first_name?: string;
+    customer_last_name?: string;
+    customer_mobile?: string;
     Cart_items: ICartItem[];
     total_price: number;
     payment_status: string;

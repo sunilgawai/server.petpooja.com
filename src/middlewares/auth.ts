@@ -1,25 +1,24 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { CustomErrorHandler, JwtService } from "../services";
 import { IJwtPayload } from "../typings";
 
-const auth = (req: Request, res: Response, next: NextFunction) => {
-    let authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return next(CustomErrorHandler.unAuthorized());
-    }
-
-    let token = authHeader.split(' ')[1];
-    // Verify token.
+const auth: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        req.salesman = {
-            salesman_id: 'ss',
-            username: 'sss'
+        console.log("Cookie", req.cookies);
+        const { jwt_token } = req.cookies;
+        if (!jwt_token) {
+            return next(CustomErrorHandler.unAuthorized());
         }
-        console.log(req.salesman)
-        const { salesman_id, username } = <IJwtPayload>JwtService.verify(token);
+        const { salesman_id, username } = <IJwtPayload>JwtService.verify(jwt_token);
+        if (!salesman_id || !username) {
+            return next(CustomErrorHandler.unAuthorized());
+        }
 
-        console.log(req.salesman)
+        req.salesman = {
+            salesman_id: salesman_id,
+            username: username
+        }
+        console.log("req salesman", req.salesman)
 
         next();
     } catch (error) {

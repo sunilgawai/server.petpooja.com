@@ -1,4 +1,3 @@
-// import CartController from "../controllers/CartController";
 import {
     CartController,
     CategoryController,
@@ -6,6 +5,7 @@ import {
     OrderController
 } from "../controllers";
 import { Router } from "express";
+import { auth } from "../middlewares";
 
 const clientRoutes = Router();
 
@@ -16,7 +16,7 @@ const clientRoutes = Router();
  * @param none
  * @returns {ICategory[]} // Will return all categories.
 */
-clientRoutes.get('/categories', CategoryController.getCategories);
+clientRoutes.get('/categories', auth, CategoryController.getCategories);
 
 /**
  * GET Categories.
@@ -25,7 +25,7 @@ clientRoutes.get('/categories', CategoryController.getCategories);
  * @param none
  * @returns {ICategory[]} // Will return all categories.
 */
-clientRoutes.get('/products', ProductController.getProducts);
+clientRoutes.get('/products', auth, ProductController.getProducts);
 
 
 
@@ -36,7 +36,7 @@ clientRoutes.get('/products', ProductController.getProducts);
  * @param none
  * @returns {ITable[]} // Table includes cart 
 */
-clientRoutes.get('/cart', CartController.get);
+clientRoutes.get('/cart', auth, CartController.get);
 
 /**
  * POST Carts.
@@ -45,20 +45,7 @@ clientRoutes.get('/cart', CartController.get);
  * @param {ITable}
  * @returns {ITable[]} // Tables includes carts
 */
-clientRoutes.post('/cart', CartController.update);
-
-
-/**
- * INCREASE/DECREASE QTY.
- * @auth true
- * @route {POST} /cart/items/:itemId?query=increase
- * @param {{
- *      id: number
- *      query: "decrease/decrease"
- * }}
- * @returns {true/false}
-*/
-// clientRoutes.post('/cart/items/:id', CartController.handleQty);
+clientRoutes.post('/cart', auth, CartController.update);
 
 
 /**
@@ -68,7 +55,7 @@ clientRoutes.post('/cart', CartController.update);
  * @param {id:number}
  * @returns {ITable[]} // Table includes cart 
 */
-clientRoutes.delete('/cart/:id', CartController.empty);
+clientRoutes.delete('/cart/:id', auth, CartController.empty);
 
 
 
@@ -79,7 +66,7 @@ clientRoutes.delete('/cart/:id', CartController.empty);
  * @param {IOrder}
  * @returns {Iorder} // Table includes cart 
 */
-clientRoutes.post('/order', OrderController.store);
+clientRoutes.post('/order', auth, OrderController.store);
 
 /**
  * POST Carts.
@@ -88,7 +75,7 @@ clientRoutes.post('/order', OrderController.store);
  * @param {null}
  * @returns {Iorder} 
 */
-clientRoutes.get('/order', OrderController.getAll);
+clientRoutes.get('/order', auth, OrderController.getAll);
 
 
 /**
@@ -98,7 +85,7 @@ clientRoutes.get('/order', OrderController.getAll);
  * @param {id: number}
  * @returns {Order} // Table includes cart 
 */
-clientRoutes.get('/order/:id', OrderController.getUniuqe);
+clientRoutes.get('/order/:id', auth, OrderController.getUniuqe);
 
 
 

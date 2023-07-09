@@ -20,6 +20,12 @@ model Salesman {
   orders      order[]
 }
 
+model User {
+  id Int @id @default(autoincrement())
+  name  String
+  email String
+}
+
 // Products related.
 model CartTable {
   id              Int    @id @default(autoincrement())
@@ -126,8 +132,8 @@ model tbl_itemmaster {
   IsItemReturnable                    Boolean?
   createdAt                           DateTime           @db.DateTime(0)
   updatedAt                           DateTime           @db.DateTime(0)
-  CartItem                            CartItem[]
   orders_products                     orders_products[]
+  CartItem                            CartItem[]
 }
 
 model tbl_srate {
