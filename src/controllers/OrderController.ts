@@ -54,7 +54,6 @@ class OrderController {
         }
         // Create order.
         try {
-
             let order = await database.order.create({
                 data: {
                     customer_first_name: customer_first_name,

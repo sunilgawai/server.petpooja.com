@@ -5,25 +5,41 @@ CREATE TABLE `Salesman` (
     `username` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
 
+    UNIQUE INDEX `Salesman_username_key`(`username`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Table` (
+CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `table_name` VARCHAR(191) NULL,
-    `cart_id` INTEGER NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `email` VARCHAR(191) NOT NULL,
 
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `CartTable` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `cart_table_id` VARCHAR(191) NOT NULL,
+    `cart_table_name` VARCHAR(191) NOT NULL,
+
+    UNIQUE INDEX `CartTable_cart_table_name_key`(`cart_table_name`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `Cart` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `customer_id` INTEGER NOT NULL,
-    `payment_method` VARCHAR(191) NOT NULL,
-    `payment_status` BOOLEAN NOT NULL,
+    `customer_first_name` VARCHAR(191) NULL,
+    `customer_last_name` VARCHAR(191) NULL,
+    `customer_mobile` VARCHAR(191) NULL,
+    `payment_status` VARCHAR(255) NULL DEFAULT '1',
+    `payment_method` VARCHAR(191) NULL,
+    `total_price` INTEGER NULL,
+    `cart_table_id` INTEGER NOT NULL,
 
+    UNIQUE INDEX `Cart_cart_table_id_key`(`cart_table_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -31,7 +47,9 @@ CREATE TABLE `Cart` (
 CREATE TABLE `CartItem` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `cart_id` INTEGER NOT NULL,
-    `item_id` INTEGER NOT NULL,
+    `itemmaster_id` INTEGER NOT NULL,
+    `name` VARCHAR(191) NULL,
+    `product_price` INTEGER NOT NULL,
     `quantity` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -127,6 +145,7 @@ CREATE TABLE `tbl_srate` (
     `createdAt` DATETIME(0) NOT NULL,
     `updatedAt` DATETIME(0) NOT NULL,
 
+    UNIQUE INDEX `tbl_srate_Rate_ID_key`(`Rate_ID`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -137,15 +156,16 @@ CREATE TABLE `order` (
     `Shop_Code` VARCHAR(255) NOT NULL,
     `customer_first_name` VARCHAR(255) NOT NULL,
     `customer_last_name` VARCHAR(255) NOT NULL,
-    `customer_email` VARCHAR(255) NOT NULL,
+    `customer_email` VARCHAR(255) NULL,
     `customer_mobile` VARCHAR(255) NOT NULL,
     `date_purchased` DATETIME(0) NULL,
     `order_price` VARCHAR(255) NULL,
     `payment_method` VARCHAR(255) NOT NULL,
     `payment_status` VARCHAR(255) NOT NULL DEFAULT '1',
     `order_status` VARCHAR(255) NOT NULL DEFAULT '1',
-    `createdAt` DATETIME(0) NOT NULL,
-    `updatedAt` DATETIME(0) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `salesman_id` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -456,19 +476,22 @@ CREATE TABLE `tbl_stockdetails` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Table` ADD CONSTRAINT `Table_cart_id_fkey` FOREIGN KEY (`cart_id`) REFERENCES `Cart`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Cart` ADD CONSTRAINT `Cart_cart_table_id_fkey` FOREIGN KEY (`cart_table_id`) REFERENCES `CartTable`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `CartItem` ADD CONSTRAINT `CartItem_cart_id_fkey` FOREIGN KEY (`cart_id`) REFERENCES `Cart`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `CartItem` ADD CONSTRAINT `CartItem_item_id_fkey` FOREIGN KEY (`item_id`) REFERENCES `tbl_itemmaster`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `CartItem` ADD CONSTRAINT `CartItem_itemmaster_id_fkey` FOREIGN KEY (`itemmaster_id`) REFERENCES `tbl_itemmaster`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `tbl_itemmaster` ADD CONSTRAINT `tbl_itemmaster_tbl_categorymaster_id_fkey` FOREIGN KEY (`tbl_categorymaster_id`) REFERENCES `tbl_categorymaster`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `tbl_itemmaster` ADD CONSTRAINT `tbl_itemmaster_tbl_srate_id_fkey` FOREIGN KEY (`tbl_srate_id`) REFERENCES `tbl_srate`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `tbl_itemmaster` ADD CONSTRAINT `tbl_itemmaster_tbl_srate_id_fkey` FOREIGN KEY (`tbl_srate_id`) REFERENCES `tbl_srate`(`Rate_ID`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `order` ADD CONSTRAINT `order_salesman_id_fkey` FOREIGN KEY (`salesman_id`) REFERENCES `Salesman`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `orders_products` ADD CONSTRAINT `orders_products_order_id_fkey` FOREIGN KEY (`order_id`) REFERENCES `order`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
